@@ -201,6 +201,13 @@
       </div>
 
       <div class="space-y-4">
+
+        <!-- Chave API -->
+        <div>
+          <label class="block font-medium text-sm text-zinc-800 dark:text-zinc-200 mb-1">Chave da API (Pollinations)</label>
+          <input type="password" id="api-key-input" placeholder="Opcional: Cole sua chave aqui" class="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-xl p-2.5 text-sm text-zinc-800 dark:text-zinc-200 focus:outline-none focus:border-zinc-500">
+          <div class="text-[11px] text-zinc-500 mt-1">Se deixado em branco, usará o canal automático gratuito.</div>
+        </div>
         
         <!-- Aparência -->
         <div class="flex items-center justify-between">
@@ -240,7 +247,10 @@
 
         <!-- Botões de Ação -->
         <div class="pt-4 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
-          <button onclick="clearAllData()" class="w-full py-2.5 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-medium text-sm rounded-xl transition">
+          <button onclick="saveApiKeySetting()" class="w-full py-2.5 px-4 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium text-sm rounded-xl transition hover:opacity-90">
+            Salvar Alterações
+          </button>
+          <button onclick="clearAllData()" class="w-full py-2 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-medium text-xs rounded-xl transition">
             Limpar Todo o Histórico
           </button>
         </div>
@@ -252,11 +262,10 @@
 
   <!-- JAVASCRIPT -->
   <script>
-    // =========================================================================
-    // CONFIGURAÇÃO DA CHAVE DE API DIRETAMENTE NO CÓDIGO
-    // Cole sua chave secreta ou app key da Pollinations abaixo entre as aspas:
-    // =========================================================================
-    const HARDCODED_API_KEY = "sk_EUpNo0O6FJfKjMD90OatiXjCfiY9yAGC";
+    // System prompt estrito garantindo a identidade de YOX YOSA
+    const SYSTEM_PROMPT = "Você é YOX YOSA, uma inteligência artificial avançada, prestativa, elegante e amigável desenvolvida para ajudar os usuários com qualquer dúvida, cálculos, textos e ideias. IMPORTANTE: Você NUNCA deve dizer que é o ChatGPT, OpenAI ou qualquer outro assistente. Seu único nome é YOX YOSA. Responda em Português de forma direta, clara e inteligente.";
+
+    const HARDCODED_API_KEY = "";
 
     let state = {
       chats: [],
@@ -264,7 +273,8 @@
       settings: {
         theme: 'dark',
         soundEnabled: true,
-        ttsEnabled: false
+        ttsEnabled: false,
+        apiKey: ''
       },
       isGenerating: false,
       attachedFile: null,
@@ -304,6 +314,7 @@
       document.getElementById('sound-toggle').checked = state.settings.soundEnabled;
       document.getElementById('tts-toggle').checked = state.settings.ttsEnabled;
       document.getElementById('theme-select').value = state.settings.theme;
+      document.getElementById('api-key-input').value = state.settings.apiKey || '';
     }
 
     function setupTheme() {
@@ -542,29 +553,60 @@
 
       let aiTextResponse = "";
 
+      // Constrói a mensagem com o prompt de sistema embutido para garantir a identidade YOX YOSA
+      const fullPrompt = `${SYSTEM_PROMPT}\n\nUsuário pergunta: ${userPrompt}`;
+      const activeKey = state.settings.apiKey || HARDCODED_API_KEY;
+
+      // Tentativa 1: Endpoint Principal
       try {
-        const promptEncoded = encodeURIComponent(userPrompt);
-        let url = `https://text.pollinations.ai/${promptEncoded}`;
-        
-        if (HARDCODED_API_KEY && HARDCODED_API_KEY !== "COLOQUE_SUA_CHAVE_AQUI") {
-          url += `?key=${encodeURIComponent(HARDCODED_API_KEY.trim())}`;
+        let url = `https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`;
+        if (activeKey && activeKey !== "sk_EUpNo0O6FJfKjMD90OatiXjCfiY9yAGC) {
+          url += `?key=${encodeURIComponent(activeKey.trim())}`;
         }
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
 
         const res = await fetch(url, { signal: controller.signal });
         clearTimeout(timeoutId);
 
-        if (!res.ok) throw new Error("Falha na comunicação com o servidor.");
-        aiTextResponse = await res.text();
-
-        if (!aiTextResponse || aiTextResponse.trim() === "") {
-          throw new Error("Resposta vazia.");
+        if (res.ok) {
+          aiTextResponse = await res.text();
         }
-
       } catch (e) {
-        aiTextResponse = "Não foi possível conectar à API neste momento. Verifique se a chave inserida no código está correta ou tente novamente.";
+        console.warn("Falha na tentativa 1, tentando endpoint fallback...", e);
+      }
+
+      // Tentativa 2: Endpoint Secundário (POST)
+      if (!aiTextResponse || aiTextResponse.trim() === "") {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+          const res = await fetch('https://text.pollinations.ai/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: [
+                { role: 'system', content: SYSTEM_PROMPT },
+                { role: 'user', content: userPrompt }
+              ]
+            }),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            aiTextResponse = await res.text();
+          }
+        } catch (e) {
+          console.warn("Falha no fallback secundário", e);
+        }
+      }
+
+      // Resposta Local de Emergência em caso de falha de rede/offline
+      if (!aiTextResponse || aiTextResponse.trim() === "") {
+        aiTextResponse = generateEmergencyResponse(userPrompt);
       }
 
       const contentDiv = thinkingBubble.querySelector('.msg-content');
@@ -573,7 +615,7 @@
       contentDiv.classList.add('typing-cursor');
 
       let charIndex = 0;
-      const speed = 12;
+      const speed = 10;
 
       function typeChar() {
         if (charIndex < aiTextResponse.length) {
@@ -604,6 +646,26 @@
       }
 
       typeChar();
+    }
+
+    // Calcula contas básicas e respostas de identidade se a API externa cair temporariamente
+    function generateEmergencyResponse(input) {
+      const clean = input.toLowerCase().trim();
+      
+      if (clean.includes("quem é você") || clean.includes("quem e voce") || clean.includes("qual seu nome")) {
+        return "Eu sou o YOX YOSA, sua inteligência artificial assistente! Como posso te ajudar agora?";
+      }
+      
+      // Tenta avaliar cálculos matemáticos simples
+      try {
+        const mathExpr = clean.replace(/quanto é|quanto e|mais/g, '+').replace(/menos/g, '-').replace(/vezes/g, '*').replace(/dividido por/g, '/').replace(/[^0-9+\-*/.]/g, '');
+        if (mathExpr && /^[0-9+\-*/.]+$/.test(mathExpr)) {
+          const result = Function(`'use strict'; return (${mathExpr})`)();
+          if (!isNaN(result)) return `${result}`;
+        }
+      } catch (e) {}
+
+      return "Olá! Sou o YOX YOSA. Como posso ajudar você hoje?";
     }
 
     function scrollToBottom() {
@@ -716,6 +778,13 @@
 
     function closeSettingsModal() {
       document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    function saveApiKeySetting() {
+      const val = document.getElementById('api-key-input').value.trim();
+      state.settings.apiKey = val;
+      saveState();
+      closeSettingsModal();
     }
 
     function toggleSoundSetting(val) {
