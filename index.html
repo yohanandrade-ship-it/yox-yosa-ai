@@ -1,753 +1,590 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>YOX YOSA</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            display: ['Plus Jakarta Sans', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
-
-  <style>
-    .pb-safe {
-      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-    }
-
-    .typing-cursor::after {
-      content: '▋';
-      animation: blink 1s infinite;
-      margin-left: 2px;
-      color: #94a3b8;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    ::-webkit-scrollbar {
-      width: 5px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.2);
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(148, 163, 184, 0.4);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>YOX YOSA</title>
+​<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+​<!-- Google Fonts: Inter & Plus Jakarta Sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+​<!-- FontAwesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+​<script>
+tailwind.config = {
+darkMode: 'class',
+theme: {
+extend: {
+fontFamily: {
+sans: ['Inter', 'sans-serif'],
+display: ['Plus Jakarta Sans', 'sans-serif'],
+}
+}
+}
+}
+</script>
+​<style>
+.pb-safe {
+padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+.typing-cursor::after {
+content: '▋';
+animation: blink 1s infinite;
+margin-left: 2px;
+color: #94a3b8;
+}
+@keyframes blink {
+0%, 100% { opacity: 1; }
+50% { opacity: 0; }
+}
+::-webkit-scrollbar {
+width: 5px;
+}
+::-webkit-scrollbar-track {
+background: transparent;
+}
+::-webkit-scrollbar-thumb {
+background: rgba(148, 163, 184, 0.2);
+border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+background: rgba(148, 163, 184, 0.4);
+}
+</style>
 </head>
 <body class="bg-zinc-100 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-sans antialiased h-dvh w-screen overflow-hidden flex flex-col">
-
-  <div class="flex h-full w-full overflow-hidden relative">
-
-    <!-- OVERLAY SIDEBAR MOBILE -->
-    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-30 hidden transition-opacity lg:hidden"></div>
-
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col transition-transform duration-300 transform -translate-x-full lg:translate-x-0 h-full">
-      
-      <div class="p-3 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2">
-        <button onclick="createNewChat()" class="flex-1 flex items-center justify-between px-3 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition text-sm font-medium">
-          <span class="flex items-center gap-2">
-            <i class="fa-solid fa-plus text-xs"></i>
-            <span>Nova Conversa</span>
-          </span>
-          <i class="fa-regular fa-pen-to-square text-xs text-zinc-400"></i>
-        </button>
-        <button onclick="toggleSidebar()" class="lg:hidden p-2.5 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <!-- HISTÓRICO -->
-      <div class="flex-1 overflow-y-auto p-3 space-y-4" id="chat-history-container">
-      </div>
-
-      <!-- PERFIL & BRAND -->
-      <div class="p-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
-        <div class="flex items-center gap-2 font-display font-semibold text-zinc-700 dark:text-zinc-300">
-          <div class="w-6 h-6 rounded-full bg-zinc-800 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center font-bold text-xs">Y</div>
-          <span>YOX YOSA</span>
-        </div>
-        <button onclick="openSettingsModal()" class="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
-          <i class="fa-solid fa-gear text-sm"></i>
-        </button>
-      </div>
-    </aside>
-
-    <!-- ÁREA PRINCIPAL -->
-    <main class="flex-1 flex flex-col h-full min-w-0 bg-white dark:bg-zinc-950 relative">
-      
-      <!-- HEADER -->
-      <header class="h-14 border-b border-zinc-200 dark:border-zinc-800 px-4 flex items-center justify-between shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur">
-        <div class="flex items-center gap-3">
-          <button onclick="toggleSidebar()" class="p-2 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition" title="Menu">
-            <i class="fa-solid fa-bars-staggered"></i>
-          </button>
-          <h1 id="current-chat-title" class="font-display font-semibold text-sm sm:text-base text-zinc-800 dark:text-zinc-100 truncate max-w-[200px] sm:max-w-md">
-            Nova Conversa
-          </h1>
-        </div>
-
-        <div class="flex items-center gap-1.5">
-          <button onclick="toggleTheme()" class="p-2 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition" title="Alternar Tema">
-            <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
-            <i class="fa-solid fa-moon inline dark:hidden text-zinc-600"></i>
-          </button>
-          <button onclick="openSettingsModal()" class="p-2 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition" title="Configurações">
-            <i class="fa-solid fa-sliders"></i>
-          </button>
-        </div>
-      </header>
-
-      <!-- CHAT MESSAGES -->
-      <section id="chat-messages" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 flex flex-col">
-        
-        <!-- BOAS VINDAS -->
-        <div id="welcome-screen" class="my-auto flex flex-col items-center justify-center text-center px-4 py-12 select-none">
-          <h2 class="font-display text-2xl sm:text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 mb-2">
-            Bem-vindo ao YOX YOSA
-          </h2>
-          <p class="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 max-w-sm">
-            Como posso ajudar você hoje?
-          </p>
-        </div>
-
-        <!-- LISTA DE MENSAGENS -->
-        <div id="messages-list" class="w-full max-w-3xl mx-auto space-y-6 hidden"></div>
-      </section>
-
-      <!-- BARRA DE MENSAGEM FIXA NO RODAPÉ -->
-      <footer class="w-full border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 sm:p-4 pb-safe shrink-0">
-        <div class="max-w-3xl mx-auto relative">
-          
-          <form id="chat-form" onsubmit="handleSendMessage(event)" class="relative flex items-center bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 focus-within:border-zinc-400 dark:focus-within:border-zinc-700 transition shadow-sm">
-            
-            <button type="button" onclick="triggerFileInput()" class="p-2.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition rounded-xl" title="Anexar arquivo">
-              <i class="fa-solid fa-paperclip text-base"></i>
-            </button>
-            <input type="file" id="file-input" class="hidden" onchange="handleFileSelected(event)">
-
-            <textarea 
-              id="user-input" 
-              rows="1" 
-              placeholder="Escreva uma mensagem..." 
-              oninput="autoResizeTextarea(this)"
-              onkeydown="handleKeyDown(event)"
-              class="w-full bg-transparent px-3 py-1.5 text-sm sm:text-base text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none resize-none max-h-32 min-h-[38px]"
-            ></textarea>
-
-            <div class="flex items-center gap-1 shrink-0">
-              <button 
-                type="button" 
-                id="voice-btn" 
-                onclick="toggleVoiceRecognition()" 
-                class="p-2.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition rounded-xl"
-                title="Entrada por voz">
-                <i class="fa-solid fa-microphone text-base"></i>
-              </button>
-
-              <button 
-                type="submit" 
-                id="send-btn" 
-                class="w-9 h-9 flex items-center justify-center rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium hover:opacity-90 active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none">
-                <i class="fa-solid fa-arrow-up text-sm"></i>
-              </button>
-            </div>
-          </form>
-
-          <div id="status-bar" class="hidden mt-2 flex items-center justify-between text-xs text-zinc-500 px-2">
-            <span id="status-text" class="flex items-center gap-1.5"></span>
-            <button type="button" onclick="cancelStatus()" class="hover:underline text-zinc-400">Remover</button>
-          </div>
-
-        </div>
-      </footer>
-
-    </main>
-  </div>
-
-  <!-- MODAL CONFIGURAÇÕES -->
-  <div id="settings-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
-    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md p-6 shadow-xl space-y-6">
-      
-      <div class="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
-        <h3 class="font-display font-semibold text-lg text-zinc-800 dark:text-zinc-100">Configurações</h3>
-        <button onclick="closeSettingsModal()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <div class="space-y-4">
-        
-        <!-- Chave API Pollinations -->
-        <div class="space-y-1">
-          <label class="block text-sm font-medium text-zinc-800 dark:text-zinc-200">CHAVE API pollimos</label>
-          <input 
-            type="password" 
-            id="api-key-input" 
-            placeholder="Cole sua chave (ex: pk_...)" 
-            class="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3 py-2 text-sm text-zinc-800 dark:text-zinc-100 focus:outline-none focus:border-zinc-500"
-          >
-          <p class="text-[11px] text-zinc-400">Cole a chave gerada na Pollinations.ai para respostas ativas por IA.</p>
-        </div>
-
-        <!-- Aparência -->
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="font-medium text-sm text-zinc-800 dark:text-zinc-200">Aparência</div>
-            <div class="text-xs text-zinc-500">Escolha o tema da interface</div>
-          </div>
-          <select id="theme-select" onchange="changeThemeFromSelect(this.value)" class="bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-sm rounded-lg p-2 text-zinc-800 dark:text-zinc-200 focus:outline-none">
-            <option value="dark">Escuro</option>
-            <option value="light">Claro</option>
-          </select>
-        </div>
-
-        <!-- Som -->
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="font-medium text-sm text-zinc-800 dark:text-zinc-200">Efeitos Sonoros</div>
-            <div class="text-xs text-zinc-500">Som sintético suave ao digitar</div>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="sound-toggle" onchange="toggleSoundSetting(this.checked)" class="sr-only peer" checked>
-            <div class="w-11 h-6 bg-zinc-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-zinc-800 dark:peer-checked:bg-zinc-200 dark:after:bg-zinc-900"></div>
-          </label>
-        </div>
-
-        <!-- Leitura de Voz -->
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="font-medium text-sm text-zinc-800 dark:text-zinc-200">Leitura de Voz</div>
-            <div class="text-xs text-zinc-500">Ler respostas automaticamente</div>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="tts-toggle" onchange="toggleTTSSetting(this.checked)" class="sr-only peer">
-            <div class="w-11 h-6 bg-zinc-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-zinc-800 dark:peer-checked:bg-zinc-200 dark:after:bg-zinc-900"></div>
-          </label>
-        </div>
-
-        <!-- Botões de Ação -->
-        <div class="pt-4 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
-          <button onclick="saveApiKey()" class="w-full py-2.5 px-4 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium text-sm rounded-xl transition">
-            Salvar Configurações
-          </button>
-          <button onclick="clearAllData()" class="w-full py-2.5 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-medium text-sm rounded-xl transition">
-            Limpar Todo o Histórico
-          </button>
-        </div>
-
-      </div>
-
-    </div>
-  </div>
-
-  <!-- JAVASCRIPT -->
-  <script>
-    let state = {
-      chats: [],
-      currentChatId: null,
-      settings: {
-        theme: 'dark',
-        soundEnabled: true,
-        ttsEnabled: false,
-        apiKey: ''
-      },
-      isGenerating: false,
-      attachedFile: null,
-      recognition: null,
-      isListening: false
-    };
-
-    window.addEventListener('DOMContentLoaded', () => {
-      loadStateFromStorage();
-      setupTheme();
-      setupSpeechRecognition();
-      renderHistory();
-      
-      if (state.chats.length === 0) {
-        createNewChat();
-      } else {
-        loadChat(state.chats[0].id);
-      }
-    });
-
-    function saveState() {
-      localStorage.setItem('yox_yosa_chats', JSON.stringify(state.chats));
-      localStorage.setItem('yox_yosa_settings', JSON.stringify(state.settings));
-    }
-
-    function loadStateFromStorage() {
-      const savedChats = localStorage.getItem('yox_yosa_chats');
-      const savedSettings = localStorage.getItem('yox_yosa_settings');
-
-      if (savedChats) {
-        try { state.chats = JSON.parse(savedChats); } catch (e) { state.chats = []; }
-      }
-      if (savedSettings) {
-        try { state.settings = { ...state.settings, ...JSON.parse(savedSettings) }; } catch (e) {}
-      }
-
-      document.getElementById('sound-toggle').checked = state.settings.soundEnabled;
-      document.getElementById('tts-toggle').checked = state.settings.ttsEnabled;
-      document.getElementById('theme-select').value = state.settings.theme;
-      document.getElementById('api-key-input').value = state.settings.apiKey || '';
-    }
-
-    function setupTheme() {
-      if (state.settings.theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-
-    function toggleTheme() {
-      state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
-      document.getElementById('theme-select').value = state.settings.theme;
-      setupTheme();
-      saveState();
-    }
-
-    function changeThemeFromSelect(val) {
-      state.settings.theme = val;
-      setupTheme();
-      saveState();
-    }
-
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebar-overlay');
-      const isClosed = sidebar.classList.contains('-translate-x-full');
-
-      if (isClosed) {
-        sidebar.classList.remove('-translate-x-full');
-        overlay.classList.remove('hidden');
-      } else {
-        sidebar.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
-      }
-    }
-
-    function createNewChat() {
-      const newChat = {
-        id: Date.now().toString(),
-        title: 'Nova Conversa',
-        createdAt: new Date().toISOString(),
-        messages: []
-      };
-
-      state.chats.unshift(newChat);
-      state.currentChatId = newChat.id;
-      saveState();
-      renderHistory();
-      loadChat(newChat.id);
-
-      if (window.innerWidth < 1024) {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        sidebar.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
-      }
-    }
-
-    function loadChat(chatId) {
-      state.currentChatId = chatId;
-      const chat = state.chats.find(c => c.id === chatId);
-      if (!chat) return;
-
-      document.getElementById('current-chat-title').innerText = chat.title;
-
-      const welcomeScreen = document.getElementById('welcome-screen');
-      const messagesList = document.getElementById('messages-list');
-      messagesList.innerHTML = '';
-
-      if (chat.messages.length === 0) {
-        welcomeScreen.classList.remove('hidden');
-        welcomeScreen.classList.add('flex');
-        messagesList.classList.add('hidden');
-      } else {
-        welcomeScreen.classList.add('hidden');
-        welcomeScreen.classList.remove('flex');
-        messagesList.classList.remove('hidden');
-
-        chat.messages.forEach(msg => {
-          appendMessageUI(msg.role, msg.content, false);
-        });
-
-        scrollToBottom();
-      }
-
-      renderHistory();
-    }
-
-    function deleteChat(chatId, event) {
-      event.stopPropagation();
-      state.chats = state.chats.filter(c => c.id !== chatId);
-      saveState();
-
-      if (state.chats.length === 0) {
-        createNewChat();
-      } else if (state.currentChatId === chatId) {
-        loadChat(state.chats[0].id);
-      } else {
-        renderHistory();
-      }
-    }
-
-    function renderHistory() {
-      const container = document.getElementById('chat-history-container');
-      container.innerHTML = '';
-
-      if (state.chats.length === 0) return;
-
-      const groupDiv = document.createElement('div');
-      groupDiv.className = 'space-y-1';
-
-      const label = document.createElement('div');
-      label.className = 'text-[11px] font-semibold text-zinc-400 px-2 py-1 uppercase tracking-wider';
-      label.innerText = 'Conversas Recentes';
-      groupDiv.appendChild(label);
-
-      state.chats.forEach(chat => {
-        const isActive = chat.id === state.currentChatId;
-        const btn = document.createElement('div');
-        btn.onclick = () => loadChat(chat.id);
-        btn.className = `group flex items-center justify-between px-3 py-2 rounded-xl text-sm cursor-pointer transition ${
-          isActive 
-            ? 'bg-zinc-200/80 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium' 
-            : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'
-        }`;
-
-        btn.innerHTML = `
-          <div class="flex items-center gap-2.5 overflow-hidden">
-            <i class="fa-regular fa-message text-xs shrink-0 text-zinc-400"></i>
-            <span class="truncate">${escapeHtml(chat.title)}</span>
-          </div>
-          <button onclick="deleteChat('${chat.id}', event)" class="opacity-0 group-hover:opacity-100 p-1 text-zinc-400 hover:text-red-500 transition">
-            <i class="fa-solid fa-trash-can text-xs"></i>
-          </button>
-        `;
-
-        groupDiv.appendChild(btn);
-      });
-
-      container.appendChild(groupDiv);
-    }
-
-    function handleKeyDown(event) {
-      if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        handleSendMessage(event);
-      }
-    }
-
-    function autoResizeTextarea(textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = Math.min(textarea.scrollHeight, 128) + 'px';
-    }
-
-    function handleSendMessage(event) {
-      if (event) event.preventDefault();
-      if (state.isGenerating) return;
-
-      const input = document.getElementById('user-input');
-      let text = input.value.trim();
-
-      if (state.attachedFile) {
-        text = `[Arquivo: ${state.attachedFile.name}] ${text}`;
-        cancelStatus();
-      }
-
-      if (!text) return;
-
-      const chat = state.chats.find(c => c.id === state.currentChatId);
-      if (!chat) return;
-
-      if (chat.messages.length === 0) {
-        chat.title = text.length > 28 ? text.substring(0, 28) + '...' : text;
-        document.getElementById('current-chat-title').innerText = chat.title;
-      }
-
-      const userMessage = { role: 'user', content: text };
-      chat.messages.push(userMessage);
-
-      document.getElementById('welcome-screen').classList.add('hidden');
-      document.getElementById('welcome-screen').classList.remove('flex');
-      const messagesList = document.getElementById('messages-list');
-      messagesList.classList.remove('hidden');
-
-      appendMessageUI('user', text, false);
-
-      input.value = '';
-      input.style.height = 'auto';
-      saveState();
-      renderHistory();
-      scrollToBottom();
-
-      fetchAIResponse(text);
-    }
-
-    function appendMessageUI(role, content, isThinking = false) {
-      const messagesList = document.getElementById('messages-list');
-      const wrapper = document.createElement('div');
-      wrapper.className = `flex gap-3 sm:gap-4 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-
-      if (role === 'assistant') {
-        wrapper.innerHTML = `
-          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-zinc-800 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
-            Y
-          </div>
-          <div class="flex-1 max-w-2xl space-y-2">
-            <div class="text-xs font-semibold text-zinc-400">YOX YOSA</div>
-            <div class="msg-content text-sm sm:text-base text-zinc-800 dark:text-zinc-100 leading-relaxed font-normal ${isThinking ? 'text-zinc-400 italic' : ''}">
-              ${isThinking ? 'Pensando...' : escapeHtml(content)}
-            </div>
-          </div>
-        `;
-      } else {
-        wrapper.innerHTML = `
-          <div class="max-w-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-4 py-2.5 rounded-2xl rounded-tr-none text-sm sm:text-base leading-relaxed break-words">
-            ${escapeHtml(content)}
-          </div>
-        `;
-      }
-
-      messagesList.appendChild(wrapper);
-      return wrapper;
-    }
-
-    async function fetchAIResponse(userPrompt) {
-      state.isGenerating = true;
-      document.getElementById('send-btn').disabled = true;
-
-      const thinkingBubble = appendMessageUI('assistant', '', true);
-      scrollToBottom();
-
-      let aiTextResponse = "";
-
-      try {
-        const apiKey = state.settings.apiKey;
-        const promptEncoded = encodeURIComponent(userPrompt);
-        
-        // Chamada de API da Pollinations
-        let url = `https://text.pollinations.ai/${promptEncoded}`;
-        if (apiKey) {
-          url += `?key=${encodeURIComponent(apiKey)}`;
-        }
-
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("Erro de conexão");
-        aiTextResponse = await res.text();
-
-      } catch (e) {
-        aiTextResponse = "Desculpe, tive um problema de conexão com a API da inteligência artificial. Verifique sua chave nas configurações ou tente novamente.";
-      }
-
-      // Inicia a animação de digitação
-      const contentDiv = thinkingBubble.querySelector('.msg-content');
-      contentDiv.classList.remove('text-zinc-400', 'italic');
-      contentDiv.innerText = '';
-      contentDiv.classList.add('typing-cursor');
-
-      let charIndex = 0;
-      const speed = 15;
-
-      function typeChar() {
-        if (charIndex < aiTextResponse.length) {
-          contentDiv.innerText += aiTextResponse.charAt(charIndex);
-          charIndex++;
-          scrollToBottom();
-          
-          if (state.settings.soundEnabled && charIndex % 3 === 0) {
-            playClickSound();
-          }
-
-          setTimeout(typeChar, speed);
-        } else {
-          contentDiv.classList.remove('typing-cursor');
-          state.isGenerating = false;
-          document.getElementById('send-btn').disabled = false;
-
-          const chat = state.chats.find(c => c.id === state.currentChatId);
-          if (chat) {
-            chat.messages.push({ role: 'assistant', content: aiTextResponse });
-            saveState();
-          }
-
-          if (state.settings.ttsEnabled) {
-            speakText(aiTextResponse);
-          }
-        }
-      }
-
-      typeChar();
-    }
-
-    function scrollToBottom() {
-      const container = document.getElementById('chat-messages');
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.innerText = text;
-      return div.innerHTML;
-    }
-
-    function playClickSound() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(420 + Math.random() * 180, ctx.currentTime);
-        gain.gain.setValueAtTime(0.01, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.025);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start();
-        osc.stop(ctx.currentTime + 0.025);
-      } catch (e) {}
-    }
-
-    function setupSpeechRecognition() {
-      const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (Speech) {
-        state.recognition = new Speech();
-        state.recognition.lang = 'pt-BR';
-        state.recognition.continuous = false;
-
-        state.recognition.onresult = (event) => {
-          const transcript = event.results[0][0].transcript;
-          const input = document.getElementById('user-input');
-          input.value += (input.value ? ' ' : '') + transcript;
-          autoResizeTextarea(input);
-          stopListening();
-        };
-
-        state.recognition.onerror = () => stopListening();
-        state.recognition.onend = () => stopListening();
-      }
-    }
-
-    function toggleVoiceRecognition() {
-      if (!state.recognition) {
-        alert('Reconhecimento de voz não suportado neste navegador.');
-        return;
-      }
-
-      if (state.isListening) {
-        state.recognition.stop();
-        stopListening();
-      } else {
-        state.isListening = true;
-        const btn = document.getElementById('voice-btn');
-        btn.classList.add('text-red-500', 'animate-pulse');
-        state.recognition.start();
-      }
-    }
-
-    function stopListening() {
-      state.isListening = false;
-      const btn = document.getElementById('voice-btn');
-      btn.classList.remove('text-red-500', 'animate-pulse');
-    }
-
-    function speakText(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'pt-BR';
-        window.speechSynthesis.speak(utterance);
-      }
-    }
-
-    function triggerFileInput() {
-      document.getElementById('file-input').click();
-    }
-
-    function handleFileSelected(e) {
-      const file = e.target.files[0];
-      if (file) {
-        state.attachedFile = file;
-        const statusBar = document.getElementById('status-bar');
-        const statusText = document.getElementById('status-text');
-
-        statusText.innerHTML = `<i class="fa-solid fa-file-lines text-zinc-400"></i> <span>${escapeHtml(file.name)}</span>`;
-        statusBar.classList.remove('hidden');
-      }
-    }
-
-    function cancelStatus() {
-      state.attachedFile = null;
-      document.getElementById('file-input').value = '';
-      document.getElementById('status-bar').classList.add('hidden');
-    }
-
-    function openSettingsModal() {
-      document.getElementById('settings-modal').classList.remove('hidden');
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settings-modal').classList.add('hidden');
-    }
-
-    function saveApiKey() {
-      const keyVal = document.getElementById('api-key-input').value.trim();
-      state.settings.apiKey = keyVal;
-      saveState();
-      closeSettingsModal();
-    }
-
-    function toggleSoundSetting(val) {
-      state.settings.soundEnabled = val;
-      saveState();
-    }
-
-    function toggleTTSSetting(val) {
-      state.settings.ttsEnabled = val;
-      saveState();
-    }
-
-    function clearAllData() {
-      if (confirm('Tem certeza que deseja apagar todo o histórico de conversas?')) {
-        state.chats = [];
-        localStorage.removeItem('yox_yosa_chats');
-        createNewChat();
-        closeSettingsModal();
-      }
-    }
-  </script>
+​<div class="flex h-full w-full overflow-hidden relative">
+​<!-- OVERLAY MOBILE -->
+<div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-30 hidden transition-opacity lg:hidden"></div>
+​<!-- SIDEBAR -->
+<aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col transition-transform duration-300 transform -translate-x-full lg:translate-x-0 h-full">
+​<div class="p-3 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2">
+<button onclick="createNewChat()" class="flex-1 flex items-center justify-between px-3 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition text-sm font-medium">
+<span class="flex items-center gap-2">
+<i class="fa-solid fa-plus text-xs"></i>
+<span>Nova Conversa</span>
+</span>
+<i class="fa-regular fa-pen-to-square text-xs text-zinc-400"></i>
+</button>
+<button onclick="toggleSidebar()" class="lg:hidden p-2.5 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
+<i class="fa-solid fa-xmark text-lg"></i>
+</button>
+</div>
+​<!-- HISTÓRICO -->
+<div class="flex-1 overflow-y-auto p-3 space-y-4" id="chat-history-container"></div>
+​<!-- PERFIL & BRAND -->
+<div class="p-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
+<div class="flex items-center gap-2 font-display font-semibold text-zinc-700 dark:text-zinc-300">
+<div class="w-6 h-6 rounded-full bg-zinc-800 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center font-bold text-xs">Y</div>
+<span>YOX YOSA</span>
+</div>
+<button onclick="openSettingsModal()" class="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
+<i class="fa-solid fa-gear text-sm"></i>
+</button>
+</div>
+</aside>
+​<!-- ÁREA PRINCIPAL -->
+<main class="flex-1 flex flex-col h-full min-w-0 bg-white dark:bg-zinc-950 relative">
+​<!-- HEADER -->
+<header class="h-14 border-b border-zinc-200 dark:border-zinc-800 px-4 flex items-center justify-between shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur">
+<div class="flex items-center gap-3">
+<button onclick="toggleSidebar()" class="p-2 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition" title="Menu">
+<i class="fa-solid fa-bars-staggered"></i>
+</button>
+<h1 id="current-chat-title" class="font-display font-semibold text-sm sm:text-base text-zinc-800 dark:text-zinc-100 truncate max-w-[200px] sm:max-w-md">
+Nova Conversa
+</h1>
+</div>
+​<div class="flex items-center gap-1.5">
+<button onclick="toggleTheme()" class="p-2 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition" title="Alternar Tema">
+<i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+<i class="fa-solid fa-moon inline dark:hidden text-zinc-600"></i>
+</button>
+<button onclick="openSettingsModal()" class="p-2 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition" title="Configurações">
+<i class="fa-solid fa-sliders"></i>
+</button>
+</div>
+</header>
+​<!-- CHAT MESSAGES -->
+<section id="chat-messages" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 flex flex-col">
+​<!-- BOAS VINDAS -->
+<div id="welcome-screen" class="my-auto flex flex-col items-center justify-center text-center px-4 py-12 select-none">
+<h2 class="font-display text-2xl sm:text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 mb-2">
+Bem-vindo ao YOX YOSA
+</h2>
+<p class="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 max-w-sm">
+Como posso ajudar você hoje?
+</p>
+</div>
+​<!-- LISTA DE MENSAGENS -->
+<div id="messages-list" class="w-full max-w-3xl mx-auto space-y-6 hidden"></div>
+</section>
+​<!-- BARRA DE MENSAGEM FIXA NO RODAPÉ -->
+<footer class="w-full border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 sm:p-4 pb-safe shrink-0">
+<div class="max-w-3xl mx-auto relative">
+​<form id="chat-form" onsubmit="handleSendMessage(event)" class="relative flex items-center bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 focus-within:border-zinc-400 dark:focus-within:border-zinc-700 transition shadow-sm">
+​<button type="button" onclick="triggerFileInput()" class="p-2.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition rounded-xl" title="Anexar arquivo">
+<i class="fa-solid fa-paperclip text-base"></i>
+</button>
+<input type="file" id="file-input" class="hidden" onchange="handleFileSelected(event)">
+​<textarea 
+id="user-input" 
+rows="1" 
+placeholder="Escreva uma mensagem..." 
+oninput="autoResizeTextarea(this)"
+onkeydown="handleKeyDown(event)"
+class="w-full bg-transparent px-3 py-1.5 text-sm sm:text-base text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none resize-none max-h-32 min-h-[38px]"
+></textarea>
+​<div class="flex items-center gap-1 shrink-0">
+<button 
+type="button" 
+id="voice-btn" 
+onclick="toggleVoiceRecognition()" 
+class="p-2.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition rounded-xl"
+title="Entrada por voz">
+<i class="fa-solid fa-microphone text-base"></i>
+</button>
+​<button 
+type="submit" 
+id="send-btn" 
+class="w-9 h-9 flex items-center justify-center rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium hover:opacity-90 active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none">
+<i class="fa-solid fa-arrow-up text-sm"></i>
+</button>
+</div>
+</form>
+​<div id="status-bar" class="hidden mt-2 flex items-center justify-between text-xs text-zinc-500 px-2">
+<span id="status-text" class="flex items-center gap-1.5"></span>
+<button type="button" onclick="cancelStatus()" class="hover:underline text-zinc-400">Remover</button>
+</div>
+​</div>
+</footer>
+​</main>
+</div>
+​<!-- MODAL CONFIGURAÇÕES -->
+<div id="settings-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
+<div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md p-6 shadow-xl space-y-6">
+​<div class="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
+<h3 class="font-display font-semibold text-lg text-zinc-800 dark:text-zinc-100">Configurações</h3>
+<button onclick="closeSettingsModal()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
+<i class="fa-solid fa-xmark text-lg"></i>
+</button>
+</div>
+​<div class="space-y-4">
+​<!-- Aparência -->
+<div class="flex items-center justify-between">
+<div>
+<div class="font-medium text-sm text-zinc-800 dark:text-zinc-200">Aparência</div>
+<div class="text-xs text-zinc-500">Escolha o tema da interface</div>
+</div>
+<select id="theme-select" onchange="changeThemeFromSelect(this.value)" class="bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-sm rounded-lg p-2 text-zinc-800 dark:text-zinc-200 focus:outline-none">
+<option value="dark">Escuro</option>
+<option value="light">Claro</option>
+</select>
+</div>
+​<!-- Som -->
+<div class="flex items-center justify-between">
+<div>
+<div class="font-medium text-sm text-zinc-800 dark:text-zinc-200">Efeitos Sonoros</div>
+<div class="text-xs text-zinc-500">Som sintético suave ao digitar</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="sound-toggle" onchange="toggleSoundSetting(this.checked)" class="sr-only peer" checked>
+<div class="w-11 h-6 bg-zinc-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-zinc-800 dark:peer-checked:bg-zinc-200 dark:after:bg-zinc-900"></div>
+</label>
+</div>
+​<!-- Leitura de Voz -->
+<div class="flex items-center justify-between">
+<div>
+<div class="font-medium text-sm text-zinc-800 dark:text-zinc-200">Leitura de Voz</div>
+<div class="text-xs text-zinc-500">Ler respostas automaticamente</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="tts-toggle" onchange="toggleTTSSetting(this.checked)" class="sr-only peer">
+<div class="w-11 h-6 bg-zinc-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-zinc-800 dark:peer-checked:bg-zinc-200 dark:after:bg-zinc-900"></div>
+</label>
+</div>
+​<!-- Botões de Ação -->
+<div class="pt-4 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
+<button onclick="clearAllData()" class="w-full py-2.5 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-medium text-sm rounded-xl transition">
+Limpar Todo o Histórico
+</button>
+</div>
+​</div>
+​</div>
+</div>
+​<!-- JAVASCRIPT -->
+<script>
+// =========================================================================
+// CONFIGURAÇÃO DA CHAVE DE API DIRETAMENTE NO CÓDIGO
+// Cole sua chave secreta ou app key da Pollinations abaixo entre as aspas:
+// =========================================================================
+const HARDCODED_API_KEY = "COLOQUE_SUA_CHAVE_AQUI";
+​let state = {
+chats: [],
+currentChatId: null,
+settings: {
+theme: 'dark',
+soundEnabled: true,
+ttsEnabled: false
+},
+isGenerating: false,
+attachedFile: null,
+recognition: null,
+isListening: false
+};
+​window.addEventListener('DOMContentLoaded', () => {
+loadStateFromStorage();
+setupTheme();
+setupSpeechRecognition();
+renderHistory();
+​if (state.chats.length === 0) {
+createNewChat();
+} else {
+loadChat(state.chats[0].id);
+}
+});
+​function saveState() {
+localStorage.setItem('yox_yosa_chats', JSON.stringify(state.chats));
+localStorage.setItem('yox_yosa_settings', JSON.stringify(state.settings));
+}
+​function loadStateFromStorage() {
+const savedChats = localStorage.getItem('yox_yosa_chats');
+const savedSettings = localStorage.getItem('yox_yosa_settings');
+​if (savedChats) {
+try { state.chats = JSON.parse(savedChats); } catch (e) { state.chats = []; }
+}
+if (savedSettings) {
+try { state.settings = { ...state.settings, ...JSON.parse(savedSettings) }; } catch (e) {}
+}
+​document.getElementById('sound-toggle').checked = state.settings.soundEnabled;
+document.getElementById('tts-toggle').checked = state.settings.ttsEnabled;
+document.getElementById('theme-select').value = state.settings.theme;
+}
+​function setupTheme() {
+if (state.settings.theme === 'dark') {
+document.documentElement.classList.add('dark');
+} else {
+document.documentElement.classList.remove('dark');
+}
+}
+​function toggleTheme() {
+state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
+document.getElementById('theme-select').value = state.settings.theme;
+setupTheme();
+saveState();
+}
+​function changeThemeFromSelect(val) {
+state.settings.theme = val;
+setupTheme();
+saveState();
+}
+​function toggleSidebar() {
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+const isClosed = sidebar.classList.contains('-translate-x-full');
+​if (isClosed) {
+sidebar.classList.remove('-translate-x-full');
+overlay.classList.remove('hidden');
+} else {
+sidebar.classList.add('-translate-x-full');
+overlay.classList.add('hidden');
+}
+}
+​function createNewChat() {
+const newChat = {
+id: Date.now().toString(),
+title: 'Nova Conversa',
+createdAt: new Date().toISOString(),
+messages: []
+};
+​state.chats.unshift(newChat);
+state.currentChatId = newChat.id;
+saveState();
+renderHistory();
+loadChat(newChat.id);
+​if (window.innerWidth < 1024) {
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+sidebar.classList.add('-translate-x-full');
+overlay.classList.add('hidden');
+}
+}
+​function loadChat(chatId) {
+state.currentChatId = chatId;
+const chat = state.chats.find(c => c.id === chatId);
+if (!chat) return;
+​document.getElementById('current-chat-title').innerText = chat.title;
+​const welcomeScreen = document.getElementById('welcome-screen');
+const messagesList = document.getElementById('messages-list');
+messagesList.innerHTML = '';
+​if (chat.messages.length === 0) {
+welcomeScreen.classList.remove('hidden');
+welcomeScreen.classList.add('flex');
+messagesList.classList.add('hidden');
+} else {
+welcomeScreen.classList.add('hidden');
+welcomeScreen.classList.remove('flex');
+messagesList.classList.remove('hidden');
+​chat.messages.forEach(msg => {
+appendMessageUI(msg.role, msg.content, false);
+});
+​scrollToBottom();
+}
+​renderHistory();
+}
+​function deleteChat(chatId, event) {
+event.stopPropagation();
+state.chats = state.chats.filter(c => c.id !== chatId);
+saveState();
+​if (state.chats.length === 0) {
+createNewChat();
+} else if (state.currentChatId === chatId) {
+loadChat(state.chats[0].id);
+} else {
+renderHistory();
+}
+}
+​function renderHistory() {
+const container = document.getElementById('chat-history-container');
+container.innerHTML = '';
+​if (state.chats.length === 0) return;
+​const groupDiv = document.createElement('div');
+groupDiv.className = 'space-y-1';
+​const label = document.createElement('div');
+label.className = 'text-[11px] font-semibold text-zinc-400 px-2 py-1 uppercase tracking-wider';
+label.innerText = 'Conversas Recentes';
+groupDiv.appendChild(label);
+​state.chats.forEach(chat => {
+const isActive = chat.id === state.currentChatId;
+const btn = document.createElement('div');
+btn.onclick = () => loadChat(chat.id);
+btn.className = group flex items-center justify-between px-3 py-2 rounded-xl text-sm cursor-pointer transition ${ isActive  ? 'bg-zinc-200/80 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium'  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50' };
+​btn.innerHTML = <div class="flex items-center gap-2.5 overflow-hidden"> <i class="fa-regular fa-message text-xs shrink-0 text-zinc-400"></i> <span class="truncate">${escapeHtml(chat.title)}</span> </div> <button onclick="deleteChat('${chat.id}', event)" class="opacity-0 group-hover:opacity-100 p-1 text-zinc-400 hover:text-red-500 transition"> <i class="fa-solid fa-trash-can text-xs"></i> </button>;
+​groupDiv.appendChild(btn);
+});
+​container.appendChild(groupDiv);
+}
+​function handleKeyDown(event) {
+if (event.key === 'Enter' && !event.shiftKey) {
+event.preventDefault();
+handleSendMessage(event);
+}
+}
+​function autoResizeTextarea(textarea) {
+textarea.style.height = 'auto';
+textarea.style.height = Math.min(textarea.scrollHeight, 128) + 'px';
+}
+​function sanitizeInput(text) {
+return text.replace(/</g, "<").replace(/>/g, ">");
+}
+​function handleSendMessage(event) {
+if (event) event.preventDefault();
+if (state.isGenerating) return;
+​const input = document.getElementById('user-input');
+let rawText = input.value.trim();
+if (!rawText) return;
+​let text = sanitizeInput(rawText);
+​if (state.attachedFile) {
+text = [Arquivo: ${escapeHtml(state.attachedFile.name)}] ${text};
+cancelStatus();
+}
+​const chat = state.chats.find(c => c.id === state.currentChatId);
+if (!chat) return;
+​if (chat.messages.length === 0) {
+chat.title = text.length > 28 ? text.substring(0, 28) + '...' : text;
+document.getElementById('current-chat-title').innerText = chat.title;
+}
+​chat.messages.push({ role: 'user', content: text });
+​document.getElementById('welcome-screen').classList.add('hidden');
+document.getElementById('welcome-screen').classList.remove('flex');
+const messagesList = document.getElementById('messages-list');
+messagesList.classList.remove('hidden');
+​appendMessageUI('user', text, false);
+​input.value = '';
+input.style.height = 'auto';
+saveState();
+renderHistory();
+scrollToBottom();
+​fetchAIResponse(text);
+}
+​function appendMessageUI(role, content, isThinking = false) {
+const messagesList = document.getElementById('messages-list');
+const wrapper = document.createElement('div');
+wrapper.className = flex gap-3 sm:gap-4 ${role === 'user' ? 'justify-end' : 'justify-start'};
+​if (role === 'assistant') {
+wrapper.innerHTML = <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-zinc-800 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5"> Y </div> <div class="flex-1 max-w-2xl space-y-2"> <div class="text-xs font-semibold text-zinc-400">YOX YOSA</div> <div class="msg-content text-sm sm:text-base text-zinc-800 dark:text-zinc-100 leading-relaxed font-normal ${isThinking ? 'text-zinc-400 italic' : ''}"> ${isThinking ? 'Pensando...' : escapeHtml(content)} </div> </div>;
+} else {
+wrapper.innerHTML = <div class="max-w-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-4 py-2.5 rounded-2xl rounded-tr-none text-sm sm:text-base leading-relaxed break-words"> ${escapeHtml(content)} </div>;
+}
+​messagesList.appendChild(wrapper);
+return wrapper;
+}
+​async function fetchAIResponse(userPrompt) {
+state.isGenerating = true;
+document.getElementById('send-btn').disabled = true;
+​const thinkingBubble = appendMessageUI('assistant', '', true);
+scrollToBottom();
+​let aiTextResponse = "";
+​try {
+const promptEncoded = encodeURIComponent(userPrompt);
+let url = https://text.pollinations.ai/${promptEncoded};
+​if (HARDCODED_API_KEY && HARDCODED_API_KEY !== "COLOQUE_SUA_CHAVE_AQUI") {
+url += ?key=${encodeURIComponent(HARDCODED_API_KEY.trim())};
+}
+​const controller = new AbortController();
+const timeoutId = setTimeout(() => controller.abort(), 15000);
+​const res = await fetch(url, { signal: controller.signal });
+clearTimeout(timeoutId);
+​if (!res.ok) throw new Error("Falha na comunicação com o servidor.");
+aiTextResponse = await res.text();
+​if (!aiTextResponse || aiTextResponse.trim() === "") {
+throw new Error("Resposta vazia.");
+}
+​} catch (e) {
+aiTextResponse = "Não foi possível conectar à API neste momento. Verifique se a chave inserida no código está correta ou tente novamente.";
+}
+​const contentDiv = thinkingBubble.querySelector('.msg-content');
+contentDiv.classList.remove('text-zinc-400', 'italic');
+contentDiv.innerText = '';
+contentDiv.classList.add('typing-cursor');
+​let charIndex = 0;
+const speed = 12;
+​function typeChar() {
+if (charIndex < aiTextResponse.length) {
+contentDiv.innerText += aiTextResponse.charAt(charIndex);
+charIndex++;
+scrollToBottom();
+​if (state.settings.soundEnabled && charIndex % 3 === 0) {
+playClickSound();
+}
+​setTimeout(typeChar, speed);
+} else {
+contentDiv.classList.remove('typing-cursor');
+state.isGenerating = false;
+document.getElementById('send-btn').disabled = false;
+​const chat = state.chats.find(c => c.id === state.currentChatId);
+if (chat) {
+chat.messages.push({ role: 'assistant', content: aiTextResponse });
+saveState();
+}
+​if (state.settings.ttsEnabled) {
+speakText(aiTextResponse);
+}
+}
+}
+​typeChar();
+}
+​function scrollToBottom() {
+const container = document.getElementById('chat-messages');
+container.scrollTop = container.scrollHeight;
+}
+​function escapeHtml(text) {
+const div = document.createElement('div');
+div.innerText = text;
+return div.innerHTML;
+}
+​function playClickSound() {
+try {
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+const osc = ctx.createOscillator();
+const gain = ctx.createGain();
+​osc.type = 'sine';
+osc.frequency.setValueAtTime(420 + Math.random() * 180, ctx.currentTime);
+gain.gain.setValueAtTime(0.01, ctx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.025);
+​osc.connect(gain);
+gain.connect(ctx.destination);
+​osc.start();
+osc.stop(ctx.currentTime + 0.025);
+} catch (e) {}
+}
+​function setupSpeechRecognition() {
+const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (Speech) {
+state.recognition = new Speech();
+state.recognition.lang = 'pt-BR';
+state.recognition.continuous = false;
+​state.recognition.onresult = (event) => {
+const transcript = event.results[0][0].transcript;
+const input = document.getElementById('user-input');
+input.value += (input.value ? ' ' : '') + transcript;
+autoResizeTextarea(input);
+stopListening();
+};
+​state.recognition.onerror = () => stopListening();
+state.recognition.onend = () => stopListening();
+}
+}
+​function toggleVoiceRecognition() {
+if (!state.recognition) {
+alert('Reconhecimento de voz não suportado neste navegador.');
+return;
+}
+​if (state.isListening) {
+state.recognition.stop();
+stopListening();
+} else {
+state.isListening = true;
+const btn = document.getElementById('voice-btn');
+btn.classList.add('text-red-500', 'animate-pulse');
+state.recognition.start();
+}
+}
+​function stopListening() {
+state.isListening = false;
+const btn = document.getElementById('voice-btn');
+btn.classList.remove('text-red-500', 'animate-pulse');
+}
+​function speakText(text) {
+if ('speechSynthesis' in window) {
+window.speechSynthesis.cancel();
+const utterance = new SpeechSynthesisUtterance(text);
+utterance.lang = 'pt-BR';
+window.speechSynthesis.speak(utterance);
+}
+}
+​function triggerFileInput() {
+document.getElementById('file-input').click();
+}
+​function handleFileSelected(e) {
+const file = e.target.files[0];
+if (file) {
+state.attachedFile = file;
+const statusBar = document.getElementById('status-bar');
+const statusText = document.getElementById('status-text');
+​statusText.innerHTML = <i class="fa-solid fa-file-lines text-zinc-400"></i> <span>${escapeHtml(file.name)}</span>;
+statusBar.classList.remove('hidden');
+}
+}
+​function cancelStatus() {
+state.attachedFile = null;
+document.getElementById('file-input').value = '';
+document.getElementById('status-bar').classList.add('hidden');
+}
+​function openSettingsModal() {
+document.getElementById('settings-modal').classList.remove('hidden');
+}
+​function closeSettingsModal() {
+document.getElementById('settings-modal').classList.add('hidden');
+}
+​function toggleSoundSetting(val) {
+state.settings.soundEnabled = val;
+saveState();
+}
+​function toggleTTSSetting(val) {
+state.settings.ttsEnabled = val;
+saveState();
+}
+​function clearAllData() {
+if (confirm('Tem certeza que deseja apagar todo o histórico de conversas?')) {
+state.chats = [];
+localStorage.removeItem('yox_yosa_chats');
+createNewChat();
+closeSettingsModal();
+}
+}
+</script>
 </body>
 </html>
