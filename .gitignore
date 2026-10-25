@@ -1,0 +1,14 @@
+# Node / front-end generated artifacts
+node_modules/
+dist/
+build/
+coverage/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,13 +1,4 @@
-javascript
-/**
- * YOX YOSA - Core Engine & API Handler
- */
-
-// Strict System Prompt forcing the YOX YOSA identity
-const SYSTEM_PROMPT = "Você é YOX YOSA, uma inteligência artificial avançada, prestativa, elegante e amigável desenvolvida para ajudar os usuários com qualquer dúvida, cálculos, textos e ideias. IMPORTANTE: Você NUNCA deve dizer que é o ChatGPT, OpenAI ou qualquer outro assistente. Seu único nome é YOX YOSA. Responda em Português de forma direta, clara e inteligente.";
-
-// Optional fallback API key hardcoded
-const HARDCODED_API_KEY = "sk_EUpNo0O6FJfKjMD90OatiXjCfiY9yAGC";
+const SYSTEM_PROMPT = "Você é YOX YOSA, uma inteligência artificial avançada, prestativa, elegante e amigável desenvolvida para ajudar os usuários com qualquer dúvida, cálculos, textos e ideias. Responda em português brasileiro, seja clara, útil e cordial."
 
 let state = {
   chats: [],
@@ -23,6 +14,8 @@ let state = {
   recognition: null,
   isListening: false
 };
+
+const API_KEY_STORAGE_KEY = 'yox_yosa_api_key';
 
 window.addEventListener('DOMContentLoaded', () => {
   loadStateFromStorage();
@@ -40,17 +33,28 @@ window.addEventListener('DOMContentLoaded', () => {
 function saveState() {
   localStorage.setItem('yox_yosa_chats', JSON.stringify(state.chats));
   localStorage.setItem('yox_yosa_settings', JSON.stringify(state.settings));
+
+  if (state.settings.apiKey && state.settings.apiKey.trim()) {
+    localStorage.setItem(API_KEY_STORAGE_KEY, state.settings.apiKey.trim());
+  } else {
+    localStorage.removeItem(API_KEY_STORAGE_KEY);
+  }
 }
 
 function loadStateFromStorage() {
   const savedChats = localStorage.getItem('yox_yosa_chats');
   const savedSettings = localStorage.getItem('yox_yosa_settings');
+  const savedApiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
 
   if (savedChats) {
     try { state.chats = JSON.parse(savedChats); } catch (e) { state.chats = []; }
   }
   if (savedSettings) {
     try { state.settings = { ...state.settings, ...JSON.parse(savedSettings) }; } catch (e) {}
+  }
+
+  if (savedApiKey && !state.settings.apiKey) {
+    state.settings.apiKey = savedApiKey;
   }
 
   document.getElementById('sound-toggle').checked = state.settings.soundEnabled;
@@ -286,9 +290,6 @@ function appendMessageUI(role, content, isThinking = false) {
   return wrapper;
 }
 
-/**
- * Fetch response with multi-layer fallback strategy
- */
 async function fetchAIResponse(userPrompt) {
   state.isGenerating = true;
   document.getElementById('send-btn').disabled = true;
@@ -296,16 +297,14 @@ async function fetchAIResponse(userPrompt) {
   const thinkingBubble = appendMessageUI('assistant', '', true);
   scrollToBottom();
 
-  let aiTextResponse = "";
-
+  let aiTextResponse = '';
+  const activeKey = (state.settings.apiKey || '').trim();
   const fullPrompt = `${SYSTEM_PROMPT}\n\nUsuário pergunta: ${userPrompt}`;
-  const activeKey = state.settings.apiKey || HARDCODED_API_KEY;
 
-  // Layer 1: Pollinations GET
   try {
     let url = `https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`;
-    if (activeKey && activeKey !== "COLOQUE_SUA_CHAVE_AQUI") {
-      url += `?key=${encodeURIComponent(activeKey.trim())}`;
+    if (activeKey) {
+      url += `?key=${encodeURIComponent(activeKey)}`;
     }
 
     const controller = new AbortController();
@@ -318,11 +317,10 @@ async function fetchAIResponse(userPrompt) {
       aiTextResponse = await res.text();
     }
   } catch (e) {
-    console.warn("Attempt 1 failed, trying POST fallback...", e);
+    console.warn('Attempt 1 failed, trying POST fallback...', e);
   }
 
-  // Layer 2: Pollinations POST
-  if (!aiTextResponse || aiTextResponse.trim() === "") {
+  if (!aiTextResponse || aiTextResponse.trim() === '') {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 6000);
@@ -344,12 +342,11 @@ async function fetchAIResponse(userPrompt) {
         aiTextResponse = await res.text();
       }
     } catch (e) {
-      console.warn("Attempt 2 failed, switching to local intelligence fallback", e);
+      console.warn('Attempt 2 failed, switching to local intelligence fallback', e);
     }
   }
 
-  // Layer 3: Local Engine (guarantees 100% availability for math & common queries)
-  if (!aiTextResponse || aiTextResponse.trim() === "") {
+  if (!aiTextResponse || aiTextResponse.trim() === '') {
     aiTextResponse = generateEmergencyResponse(userPrompt);
   }
 
@@ -392,9 +389,6 @@ async function fetchAIResponse(userPrompt) {
   typeChar();
 }
 
-/**
- * Local AI engine ensuring arithmetic and identity always resolve
- */
 function generateEmergencyResponse(input) {
   const clean = input.toLowerCase().trim();
 
@@ -406,7 +400,6 @@ function generateEmergencyResponse(input) {
     return "Oi! Tudo bem? Como posso ajudar você hoje?";
   }
 
-  // Safe math evaluator
   try {
     let mathExpr = clean
       .replace(/quanto é|quanto e|mais/g, '+')
@@ -557,7 +550,140 @@ function clearAllData() {
   if (confirm('Tem certeza que deseja apagar todo o histórico de conversas?')) {
     state.chats = [];
     localStorage.removeItem('yox_yosa_chats');
+    localStorage.removeItem(API_KEY_STORAGE_KEY);
+    state.settings.apiKey = '';
+    document.getElementById('api-key-input').value = '';
     createNewChat();
     closeSettingsModal();
   }
 }
+
+¨
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
