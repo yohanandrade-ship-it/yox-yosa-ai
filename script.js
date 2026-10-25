@@ -1,16 +1,17 @@
-// CONFIGURAÇÃO DIRETA DA API (Insira sua chave aqui diretamente)
-const HARDCODED_API_KEY = "sk_g9F9EeJhKLMIE4Z5MCW1nRwjBI7sX7Kh";
+// CONFIGURAÇÃO DA CHAVE DE API (Cole sua chave da API diretamente aqui)
+const HARDCODED_API_KEY = "sk_AhHrbNG822cek1pmXZwlAQOBgc8fRiB7";
 
-// System prompt rígido para fixar a identidade do YOX YOSA
+// Prompt de identidade YOX YOSA
 const SYSTEM_PROMPT = {
     role: "system",
-    content: "Você é exclusivamente YOX YOSA (ou YOSA). Você é uma inteligência artificial autônoma e independente. Nunca diga que foi criada pela OpenAI, Google, Anthropic ou qualquer outra empresa. Se perguntarem quem é você ou de onde veio, afirme estritamente que você é a YOX YOSA."
+    content: "Você se chama exclusivamente YOX YOSA (ou YOSA). Você é um sistema autônomo e independente. Se perguntarem quem é você ou de onde veio, afirme estritamente que você é a YOX YOSA e nada mais. Nunca diga que pertence a outra empresa ou inteligência."
 };
 
-// Estado da aplicação
+// Estado do Chat
 let currentChat = [];
 let chatHistoryList = [];
 let activeChatId = null;
+let isGenerating = false;
 
 // Elementos DOM
 const welcomeScreen = document.getElementById('welcomeScreen');
@@ -18,6 +19,7 @@ const startChatBtn = document.getElementById('startChatBtn');
 const chatMessages = document.getElementById('chatMessages');
 const chatForm = document.getElementById('chatForm');
 const messageInput = document.getElementById('messageInput');
+const sendBtn = document.getElementById('sendBtn');
 const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
 const historySidebar = document.getElementById('historySidebar');
 const historyList = document.getElementById('historyList');
@@ -28,20 +30,20 @@ const closeConfigBtn = document.getElementById('closeConfigBtn');
 const apiKeyInput = document.getElementById('apiKeyInput');
 const saveKeyBtn = document.getElementById('saveKeyBtn');
 
-// Obter chave da API ativa (Precedência: Interface > Código)
-function getApiKey() {
-    const saved = localStorage.getItem('yox_yosa_custom_key');
-    return saved || HARDCODED_API_KEY;
+// Obter a chave configurada
+function getActiveApiKey() {
+    const customKey = localStorage.getItem('yosa_override_key');
+    return customKey || HARDCODED_API_KEY;
 }
 
-// Inicialização
+// Inicialização de interface
 document.addEventListener('DOMContentLoaded', () => {
-    apiKeyInput.value = localStorage.getItem('yox_yosa_custom_key') || "";
+    apiKeyInput.value = localStorage.getItem('yosa_override_key') || "";
     
     startChatBtn.addEventListener('click', () => {
         welcomeScreen.classList.add('hidden');
         if (currentChat.length === 0) {
-            initNewChat();
+            initNewChatSession();
         }
     });
 
@@ -50,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     newChatBtn.addEventListener('click', () => {
-        initNewChat();
+        initNewChatSession();
         historySidebar.classList.add('-translate-x-full');
     });
 
@@ -67,9 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
     saveKeyBtn.addEventListener('click', () => {
         const val = apiKeyInput.value.trim();
         if (val) {
-            localStorage.setItem('yox_yosa_custom_key', val);
+            localStorage.setItem('yosa_override_key', val);
         } else {
-            localStorage.removeItem('yox_yosa_custom_key');
+            localStorage.removeItem('yosa_override_key');
         }
         configModal.classList.add('hidden');
         configModal.classList.remove('flex');
@@ -77,107 +79,113 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chatForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        sendMessage();
+        if (!isGenerating) {
+            handleUserSubmit();
+        }
     });
 });
 
-function initNewChat() {
+function initNewChatSession() {
     activeChatId = Date.now();
     currentChat = [SYSTEM_PROMPT];
-    renderMessages();
+    renderChatMessages();
     
-    // Adicionar ao histórico
     chatHistoryList.unshift({
         id: activeChatId,
-        title: `Conversa ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+        title: `CONVERSA ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
         messages: currentChat
     });
-    renderHistoryUI();
+    renderHistoryDrawer();
 }
 
-function renderHistoryUI() {
+function renderHistoryDrawer() {
     historyList.innerHTML = '';
-    chatHistoryList.forEach(item => {
-        const btn = document.createElement('button');
-        btn.className = `w-full text-left p-2 border ${item.id === activeChatId ? 'border-brand-white bg-brand-panel' : 'border-brand-border'} hover:bg-brand-panel uppercase transition-colors truncate`;
-        btn.innerText = item.title;
-        btn.onclick = () => {
-            activeChatId = item.id;
-            currentChat = item.messages;
-            renderMessages();
-            renderHistoryUI();
+    chatHistoryList.forEach(session => {
+        const itemBtn = document.createElement('button');
+        itemBtn.className = `w-full text-left p-3 border ${session.id === activeChatId ? 'border-mono-50 bg-mono-700' : 'border-mono-50/20 bg-mono-900'} hover:border-mono-50 uppercase transition-all truncate`;
+        itemBtn.innerText = session.title;
+        itemBtn.onclick = () => {
+            if (isGenerating) return;
+            activeChatId = session.id;
+            currentChat = session.messages;
+            renderChatMessages();
+            renderHistoryDrawer();
             welcomeScreen.classList.add('hidden');
             historySidebar.classList.add('-translate-x-full');
         };
-        historyList.appendChild(btn);
+        historyList.appendChild(itemBtn);
     });
 }
 
-function renderMessages() {
+function renderChatMessages() {
     chatMessages.innerHTML = '';
-    // Pula o prompt de sistema ao exibir mensagens
-    const visibleMessages = currentChat.filter(m => m.role !== 'system');
+    const visibleLogs = currentChat.filter(msg => msg.role !== 'system');
     
-    if (visibleMessages.length === 0) {
+    if (visibleLogs.length === 0) {
         chatMessages.innerHTML = `
             <div class="h-full flex items-center justify-center">
-                <p class="text-xs text-brand-muted uppercase tracking-widest">Aguardando comando para YOX YOSA...</p>
+                <p class="text-xs text-mono-400 uppercase tracking-widest border border-mono-50/20 p-4 bg-mono-800">
+                    SISTEMA PRONTO. ENVIE UMA MENSAGEM...
+                </p>
             </div>
         `;
         return;
     }
 
-    visibleMessages.forEach(msg => {
-        const div = document.createElement('div');
+    visibleLogs.forEach(msg => {
         const isUser = msg.role === 'user';
+        const msgContainer = document.createElement('div');
+        msgContainer.className = `flex flex-col ${isUser ? 'items-end' : 'items-start'} my-3`;
         
-        div.className = `flex flex-col ${isUser ? 'items-end' : 'items-start'} my-2`;
-        
-        div.innerHTML = `
-            <div class="text-[10px] text-brand-muted uppercase mb-1 tracking-wider">${isUser ? 'Você' : 'YOX YOSA'}</div>
-            <div class="max-w-[85%] p-3 text-xs leading-relaxed border ${isUser ? 'bg-brand-white text-brand-black border-brand-white font-medium' : 'bg-brand-dark text-brand-white border-brand-border'} font-mono">
-                ${escapeHtml(msg.content)}
+        msgContainer.innerHTML = `
+            <div class="text-[10px] text-mono-400 uppercase mb-1 tracking-widest font-bold">${isUser ? 'VOCÊ' : 'YOX YOSA'}</div>
+            <div class="max-w-[85%] p-4 text-xs leading-relaxed border ${isUser ? 'bg-mono-50 text-mono-900 border-mono-50 font-bold' : 'bg-mono-800 text-mono-50 border-mono-50/30'} font-mono whitespace-pre-wrap">
+                ${escapeMarkup(msg.content)}
             </div>
         `;
-        chatMessages.appendChild(div);
+        chatMessages.appendChild(msgContainer);
     });
 
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-async function sendMessage() {
-    const text = messageInput.value.trim();
-    const apiKey = getApiKey();
+async function handleUserSubmit() {
+    const textInput = messageInput.value.trim();
+    const apiKey = getActiveApiKey();
 
-    if (!text) return;
+    if (!textInput) return;
 
     if (!apiKey || apiKey === "SUA_CHAVE_API_AQUI") {
-        alert("Por favor, adicione sua chave de API diretamente na variável HARDCODED_API_KEY no script.js ou através das Configurações.");
+        renderSystemNotice("ERRO: COLE SUA CHAVE DE API DIRETAMENTE NO ARQUIVO SCRIPT.JS NA VARIÁVEL HARDCODED_API_KEY.");
         return;
     }
 
-    // Ocultar tela de boas-vindas caso ainda visível
     welcomeScreen.classList.add('hidden');
 
     if (!activeChatId) {
-        initNewChat();
+        initNewChatSession();
     }
 
-    // Adicionar mensagem do usuário
-    currentChat.push({ role: 'user', content: text });
+    currentChat.push({ role: 'user', content: textInput });
     messageInput.value = '';
-    renderMessages();
+    renderChatMessages();
 
-    // Indicador de pensamento
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'flex flex-col items-start my-2';
-    loadingDiv.innerHTML = `
-        <div class="text-[10px] text-brand-muted uppercase mb-1 tracking-wider">YOX YOSA</div>
-        <div class="p-3 text-xs border border-brand-border bg-brand-dark text-brand-muted animate-pulse font-mono uppercase">
-            Processando...
+    isGenerating = true;
+    messageInput.disabled = true;
+    sendBtn.disabled = true;
+    sendBtn.classList.add('opacity-50');
+
+    // Elemento de Carregamento / Pensando
+    const thinkingNode = document.createElement('div');
+    thinkingNode.className = 'flex flex-col items-start my-3';
+    thinkingNode.innerHTML = `
+        <div class="text-[10px] text-mono-400 uppercase mb-1 tracking-widest font-bold">YOX YOSA</div>
+        <div class="p-4 text-xs border border-mono-50/30 bg-mono-800 text-mono-50 font-mono uppercase tracking-widest flex items-center gap-2">
+            <span>PENSANDO</span>
+            <span class="cursor-blink"></span>
         </div>
     `;
-    chatMessages.appendChild(loadingDiv);
+    chatMessages.appendChild(thinkingNode);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
     try {
@@ -194,31 +202,82 @@ async function sendMessage() {
         });
 
         if (!response.ok) {
-            throw new Error(`Erro na API (${response.status})`);
+            throw new Error(`FALHA NO PROCESSAMENTO (${response.status})`);
         }
 
-        const data = await response.json();
-        const reply = data.choices?.[0]?.message?.content || "Sem resposta.";
+        const payload = await response.json();
+        const fullResponseText = payload.choices?.[0]?.message?.content || "SEM RESPOSTA RETORNADA.";
 
-        // Atualizar histórico de conversas
-        currentChat.push({ role: 'assistant', content: reply });
+        // Remover indicador de pensamento
+        thinkingNode.remove();
+
+        // Adicionar bloco de mensagem para efeito letra por letra
+        const aiMessageNode = document.createElement('div');
+        aiMessageNode.className = 'flex flex-col items-start my-3';
+        aiMessageNode.innerHTML = `
+            <div class="text-[10px] text-mono-400 uppercase mb-1 tracking-widest font-bold">YOX YOSA</div>
+            <div class="max-w-[85%] p-4 text-xs leading-relaxed border bg-mono-800 text-mono-50 border-mono-50/30 font-mono whitespace-pre-wrap">
+                <span id="typewriterText"></span><span class="cursor-blink"></span>
+            </div>
+        `;
+        chatMessages.appendChild(aiMessageNode);
+
+        const targetSpan = aiMessageNode.querySelector('#typewriterText');
+        await typeTextEffect(targetSpan, fullResponseText);
+
+        // Atualizar estado e historico
+        currentChat.push({ role: 'assistant', content: fullResponseText });
         
-        // Atualizar título do histórico com o primeiro texto enviado
-        const currentSession = chatHistoryList.find(h => h.id === activeChatId);
-        if (currentSession && currentSession.title.startsWith("Conversa ")) {
-            currentSession.title = text.substring(0, 20) + "...";
-            renderHistoryUI();
+        const activeSession = chatHistoryList.find(session => session.id === activeChatId);
+        if (activeSession && activeSession.title.startsWith("CONVERSA ")) {
+            activeSession.title = textInput.substring(0, 18).toUpperCase() + "...";
+            renderHistoryDrawer();
         }
 
     } catch (err) {
-        currentChat.push({ role: 'assistant', content: `[ERRO]: ${err.message}` });
+        thinkingNode.remove();
+        renderSystemNotice(`[FALHA]: ${err.message}`);
     } finally {
-        renderMessages();
+        isGenerating = false;
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('opacity-50');
+        messageInput.focus();
+        renderChatMessages();
     }
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.innerText = text;
-    return div.innerHTML;
+function typeTextEffect(element, text, speedMs = 12) {
+    return new Promise((resolve) => {
+        let index = 0;
+        function writeChar() {
+            if (index < text.length) {
+                element.textContent += text.charAt(index);
+                index++;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                setTimeout(writeChar, speedMs);
+            } else {
+                resolve();
+            }
+        }
+        writeChar();
+    });
+}
+
+function renderSystemNotice(messageText) {
+    const noticeNode = document.createElement('div');
+    noticeNode.className = 'flex flex-col items-center my-3';
+    noticeNode.innerHTML = `
+        <div class="p-3 text-xs border border-mono-50 text-mono-50 bg-mono-800 font-mono uppercase tracking-wider text-center">
+            ${escapeMarkup(messageText)}
+        </div>
+    `;
+    chatMessages.appendChild(noticeNode);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function escapeMarkup(text) {
+    const container = document.createElement('div');
+    container.innerText = text;
+    return container.innerHTML;
 }
