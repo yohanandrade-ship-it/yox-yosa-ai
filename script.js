@@ -1,12 +1,4 @@
-// CONFIGURAÇÃO DA CHAVE DE API (Cole sua chave da API diretamente aqui)
-const HARDCODED_API_KEY = "sk_AhHrbNG822cek1pmXZwlAQOBgc8fRiB7";
-
-// Prompt de identidade YOX YOSA
-const SYSTEM_PROMPT = {
-    role: "system",
-    content: "Você se chama exclusivamente YOX YOSA (ou YOSA). Você é um sistema autônomo e independente. Se perguntarem quem é você ou de onde veio, afirme estritamente que você é a YOX YOSA e nada mais. Nunca diga que pertence a outra empresa ou inteligência."
-};
-
+// ... existing code ... {
 // Estado do Chat
 let currentChat = [];
 let chatHistoryList = [];
@@ -14,8 +6,6 @@ let activeChatId = null;
 let isGenerating = false;
 
 // Elementos DOM
-const welcomeScreen = document.getElementById('welcomeScreen');
-const startChatBtn = document.getElementById('startChatBtn');
 const chatMessages = document.getElementById('chatMessages');
 const chatForm = document.getElementById('chatForm');
 const messageInput = document.getElementById('messageInput');
@@ -40,12 +30,8 @@ function getActiveApiKey() {
 document.addEventListener('DOMContentLoaded', () => {
     apiKeyInput.value = localStorage.getItem('yosa_override_key') || "";
     
-    startChatBtn.addEventListener('click', () => {
-        welcomeScreen.classList.add('hidden');
-        if (currentChat.length === 0) {
-            initNewChatSession();
-        }
-    });
+    // Iniciar sessão de chat imediatamente
+    initNewChatSession();
 
     toggleHistoryBtn.addEventListener('click', () => {
         historySidebar.classList.toggle('-translate-x-full');
@@ -110,7 +96,6 @@ function renderHistoryDrawer() {
             currentChat = session.messages;
             renderChatMessages();
             renderHistoryDrawer();
-            welcomeScreen.classList.add('hidden');
             historySidebar.classList.add('-translate-x-full');
         };
         historyList.appendChild(itemBtn);
@@ -155,12 +140,10 @@ async function handleUserSubmit() {
 
     if (!textInput) return;
 
-    if (!apiKey || apiKey === "SUA_CHAVE_API_AQUI") {
+    if (!apiKey || apiKey === "sk_AhHrbNG822cek1pmXZwlAQOBgc8fRiB7" {
         renderSystemNotice("ERRO: COLE SUA CHAVE DE API DIRETAMENTE NO ARQUIVO SCRIPT.JS NA VARIÁVEL HARDCODED_API_KEY.");
         return;
     }
-
-    welcomeScreen.classList.add('hidden');
 
     if (!activeChatId) {
         initNewChatSession();
