@@ -3,177 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YOX YOSA - Inteligência Artificial</title>
+    <title>YOX YOSA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            black: '#000000',
+                            white: '#ffffff',
+                            dark: '#121212',
+                            panel: '#1e1e1e',
+                            border: '#333333',
+                            muted: '#888888'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --bg-color: #0d1117;
-            --panel-bg: #161b22;
-            --border-color: #30363d;
-            --text-color: #c9d1d9;
-            --accent-color: #58a6ff;
-            --accent-hover: #1f6feb;
-            --user-msg: #238636;
-            --ai-msg: #21262d;
+        /* Custom scrollbars for clean look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        ::-webkit-scrollbar-track {
+            background: #000000;
         }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+        ::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 3px;
         }
-        header {
-            background-color: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header h1 {
-            font-size: 1.25rem;
-            color: var(--accent-color);
-            letter-spacing: 1px;
-        }
-        .api-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .api-container input {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            width: 240px;
-        }
-        .api-container button {
-            background-color: var(--accent-color);
-            color: #fff;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-        .api-container button:hover {
-            background-color: var(--accent-hover);
-        }
-        #chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 900px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        .message {
-            padding: 12px 16px;
-            border-radius: 8px;
-            max-width: 80%;
-            line-height: 1.5;
-            word-break: break-word;
-            white-space: pre-wrap;
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .message.user {
-            background-color: var(--user-msg);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-        .message.ai {
-            background-color: var(--ai-msg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-        }
-        .input-container {
-            background-color: var(--panel-bg);
-            border-top: 1px solid var(--border-color);
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-        }
-        .input-wrapper {
-            display: flex;
-            max-width: 900px;
-            width: 100%;
-            gap: 10px;
-        }
-        .input-wrapper textarea {
-            flex: 1;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 12px;
-            border-radius: 8px;
-            resize: none;
-            height: 50px;
-            max-height: 150px;
-            font-size: 1rem;
-            outline: none;
-        }
-        .input-wrapper textarea:focus {
-            border-color: var(--accent-color);
-        }
-        .input-wrapper button {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 0 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-        .input-wrapper button:hover {
-            background-color: var(--accent-hover);
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555555;
         }
     </style>
 </head>
-<body>
+<body class="bg-brand-black text-brand-white font-sans antialiased h-screen w-screen overflow-hidden flex flex-col">
 
-    <header>
-        <h1>YOX YOSA AI</h1>
-        <div class="api-container">
-            <input type="password" id="apiKeyInput" placeholder="Chave da API (sk_...)" />
-            <button id="saveKeyBtn">Salvar Chave</button>
+    <!-- TOP HEADER -->
+    <header class="h-14 border-b border-brand-border px-4 flex items-center justify-between bg-brand-black shrink-0">
+        <div class="flex items-center gap-3">
+            <button id="toggleHistoryBtn" class="p-2 border border-brand-border hover:bg-brand-panel text-xs uppercase tracking-wider transition-colors">
+                Histórico
+            </button>
+            <h1 class="text-sm font-bold tracking-widest uppercase">YOX YOSA</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="toggleConfigBtn" class="p-2 border border-brand-border hover:bg-brand-panel text-xs uppercase tracking-wider transition-colors">
+                Config
+            </button>
         </div>
     </header>
 
-    <div id="chat-container">
-        <div class="message ai">
-            Olá! Eu sou a <strong>YOX YOSA</strong>, uma inteligência artificial autônoma e exclusiva. Como posso ajudar você hoje?
+    <!-- MAIN WRAPPER -->
+    <div class="flex-1 flex relative overflow-hidden">
+
+        <!-- HISTORY SIDEBAR -->
+        <aside id="historySidebar" class="absolute inset-y-0 left-0 w-64 bg-brand-dark border-r border-brand-border transform -translate-x-full transition-transform duration-200 z-20 flex flex-col">
+            <div class="p-4 border-b border-brand-border flex items-center justify-between">
+                <span class="text-xs uppercase font-bold tracking-wider">Histórico</span>
+                <button id="newChatBtn" class="px-2 py-1 border border-brand-border text-xs hover:bg-brand-panel uppercase">+ Novo</button>
+            </div>
+            <div id="historyList" class="flex-1 overflow-y-auto p-2 space-y-1 text-xs">
+                <!-- Dynamic history items -->
+            </div>
+        </aside>
+
+        <!-- MAIN CHAT CONTAINER -->
+        <main class="flex-1 flex flex-col h-full w-full max-w-4xl mx-auto relative">
+
+            <!-- WELCOME SCREEN OVERLAY -->
+            <div id="welcomeScreen" class="absolute inset-0 bg-brand-black z-10 flex flex-col items-center justify-center p-6 text-center">
+                <h2 class="text-3xl font-extrabold tracking-widest uppercase mb-2">Bem-vindo ao YOSA</h2>
+                <p class="text-xs text-brand-muted max-w-md mb-8 uppercase tracking-wider">
+                    Inteligência Artificial Autônoma. Interface minimalista em preto e branco.
+                </p>
+                <button id="startChatBtn" class="px-8 py-3 bg-brand-white text-brand-black font-bold text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors">
+                    Iniciar Conversa
+                </button>
+            </div>
+
+            <!-- CHAT MESSAGES DISPLAY -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
+                <!-- Dynamic chat bubbles -->
+            </div>
+
+            <!-- INPUT BOX AREA -->
+            <div class="p-4 border-t border-brand-border bg-brand-black">
+                <form id="chatForm" class="flex gap-2 items-center">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="DIGITE SUA MENSAGEM..." 
+                        class="flex-1 bg-brand-dark border border-brand-border text-brand-white px-4 py-3 text-xs tracking-wider outline-none focus:border-brand-white transition-colors uppercase"
+                        autocomplete="off"
+                    />
+                    <button 
+                        type="submit" 
+                        class="px-6 py-3 border border-brand-white bg-brand-white text-brand-black font-bold text-xs uppercase tracking-wider hover:bg-gray-200 transition-colors shrink-0"
+                    >
+                        Enviar
+                    </button>
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- CONFIG / SETTINGS MODAL -->
+    <div id="configModal" class="fixed inset-0 bg-black/80 z-30 hidden items-center justify-center p-4">
+        <div class="bg-brand-dark border border-brand-border p-6 w-full max-w-md space-y-4">
+            <div class="flex justify-between items-center border-b border-brand-border pb-3">
+                <h3 class="text-xs font-bold uppercase tracking-widest">Configuração de API</h3>
+                <button id="closeConfigBtn" class="text-xs text-brand-muted hover:text-brand-white uppercase">[Fechar]</button>
+            </div>
+            <div class="space-y-2">
+                <label class="block text-xs uppercase text-brand-muted">Chave de API Pollinations (opcional sobreposição):</label>
+                <input 
+                    type="password" 
+                    id="apiKeyInput" 
+                    placeholder="sk_..." 
+                    class="w-full bg-brand-black border border-brand-border p-2 text-xs text-brand-white outline-none focus:border-brand-white"
+                />
+                <p class="text-[10px] text-brand-muted">A chave já está hardcodada no código `script.js`. Altere aqui caso precise sobrescrever dinamicamente.</p>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button id="saveKeyBtn" class="px-4 py-2 border border-brand-white bg-brand-white text-brand-black text-xs font-bold uppercase">Salvar</button>
+            </div>
         </div>
     </div>
 
-    <div class="input-container">
-        <div class="input-wrapper">
-            <textarea id="userInput" placeholder="Digite sua mensagem para a YOX YOSA... (Pressione Enter para enviar)"></textarea>
-            <button id="sendBtn">Enviar</button>
-        </div>
-    </div>
-
-    <!-- Script separado -->
     <script src="script.js"></script>
 </body>
 </html>
