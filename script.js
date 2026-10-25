@@ -140,7 +140,7 @@ async function handleUserSubmit() {
 
     if (!textInput) return;
 
-    if (!apiKey || apiKey === "sk_AhHrbNG822cek1pmXZwlAQOBgc8fRiB7" {
+    if (!apiKey || apiKey === "sk_AhHrbNG822cek1pmXZwlAQOBgc8fRiB7") {
         renderSystemNotice("ERRO: COLE SUA CHAVE DE API DIRETAMENTE NO ARQUIVO SCRIPT.JS NA VARIÁVEL HARDCODED_API_KEY.");
         return;
     }
