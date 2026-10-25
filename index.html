@@ -10,13 +10,17 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            black: '#000000',
-                            white: '#ffffff',
-                            dark: '#121212',
-                            panel: '#1e1e1e',
-                            border: '#333333',
-                            muted: '#888888'
+                        mono: {
+                            900: '#000000',
+                            800: '#0a0a0a',
+                            700: '#141414',
+                            600: '#222222',
+                            500: '#333333',
+                            400: '#666666',
+                            300: '#888888',
+                            200: '#aaaaaa',
+                            100: '#e5e5e5',
+                            50: '#ffffff'
                         }
                     }
                 }
@@ -24,88 +28,107 @@
         }
     </script>
     <style>
-        /* Custom scrollbars for clean look */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
             background: #000000;
         }
         ::-webkit-scrollbar-thumb {
             background: #333333;
-            border-radius: 3px;
+            border-radius: 2px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #555555;
+            background: #666666;
+        }
+        
+        .cursor-blink {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background-color: #ffffff;
+            margin-left: 2px;
+            animation: blink 0.8s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
     </style>
 </head>
-<body class="bg-brand-black text-brand-white font-sans antialiased h-screen w-screen overflow-hidden flex flex-col">
+<body class="bg-mono-900 text-mono-50 font-mono antialiased h-screen w-screen overflow-hidden flex flex-col selection:bg-mono-50 selection:text-mono-900">
 
-    <!-- TOP HEADER -->
-    <header class="h-14 border-b border-brand-border px-4 flex items-center justify-between bg-brand-black shrink-0">
+    <!-- HEADER TOP -->
+    <header class="h-14 border-b border-mono-50/20 px-4 flex items-center justify-between bg-mono-900 shrink-0 z-20">
         <div class="flex items-center gap-3">
-            <button id="toggleHistoryBtn" class="p-2 border border-brand-border hover:bg-brand-panel text-xs uppercase tracking-wider transition-colors">
-                Histórico
+            <button id="toggleHistoryBtn" class="px-3 py-1.5 border border-mono-50/30 hover:border-mono-50 bg-mono-900 text-mono-50 text-xs uppercase tracking-widest transition-all active:translate-y-0.5">
+                [ Histórico ]
             </button>
-            <h1 class="text-sm font-bold tracking-widest uppercase">YOX YOSA</h1>
+            <h1 class="text-xs font-bold tracking-widest uppercase text-mono-50">YOX YOSA</h1>
         </div>
         <div class="flex items-center gap-2">
-            <button id="toggleConfigBtn" class="p-2 border border-brand-border hover:bg-brand-panel text-xs uppercase tracking-wider transition-colors">
-                Config
+            <button id="toggleConfigBtn" class="px-3 py-1.5 border border-mono-50/30 hover:border-mono-50 bg-mono-900 text-mono-50 text-xs uppercase tracking-widest transition-all active:translate-y-0.5">
+                [ Config ]
             </button>
         </div>
     </header>
 
-    <!-- MAIN WRAPPER -->
+    <!-- MAIN BODY CONTAINER -->
     <div class="flex-1 flex relative overflow-hidden">
 
-        <!-- HISTORY SIDEBAR -->
-        <aside id="historySidebar" class="absolute inset-y-0 left-0 w-64 bg-brand-dark border-r border-brand-border transform -translate-x-full transition-transform duration-200 z-20 flex flex-col">
-            <div class="p-4 border-b border-brand-border flex items-center justify-between">
-                <span class="text-xs uppercase font-bold tracking-wider">Histórico</span>
-                <button id="newChatBtn" class="px-2 py-1 border border-brand-border text-xs hover:bg-brand-panel uppercase">+ Novo</button>
+        <!-- SIDEBAR HISTORICO -->
+        <aside id="historySidebar" class="absolute inset-y-0 left-0 w-72 bg-mono-800 border-r border-mono-50/20 transform -translate-x-full transition-transform duration-200 z-30 flex flex-col">
+            <div class="p-4 border-b border-mono-50/20 flex items-center justify-between bg-mono-900">
+                <span class="text-xs uppercase font-bold tracking-widest text-mono-50">Sessões</span>
+                <button id="newChatBtn" class="px-3 py-1 border border-mono-50 text-mono-50 text-xs hover:bg-mono-50 hover:text-mono-900 uppercase font-bold tracking-wider transition-all">
+                    + Novo
+                </button>
             </div>
-            <div id="historyList" class="flex-1 overflow-y-auto p-2 space-y-1 text-xs">
-                <!-- Dynamic history items -->
+            <div id="historyList" class="flex-1 overflow-y-auto p-3 space-y-2 text-xs">
+                <!-- Historico dinamico -->
             </div>
         </aside>
 
-        <!-- MAIN CHAT CONTAINER -->
-        <main class="flex-1 flex flex-col h-full w-full max-w-4xl mx-auto relative">
+        <!-- CHAT AREA FRONTAL -->
+        <main class="flex-1 flex flex-col h-full w-full max-w-4xl mx-auto relative bg-mono-900">
 
-            <!-- WELCOME SCREEN OVERLAY -->
-            <div id="welcomeScreen" class="absolute inset-0 bg-brand-black z-10 flex flex-col items-center justify-center p-6 text-center">
-                <h2 class="text-3xl font-extrabold tracking-widest uppercase mb-2">Bem-vindo ao YOSA</h2>
-                <p class="text-xs text-brand-muted max-w-md mb-8 uppercase tracking-wider">
-                    Inteligência Artificial Autônoma. Interface minimalista em preto e branco.
-                </p>
-                <button id="startChatBtn" class="px-8 py-3 bg-brand-white text-brand-black font-bold text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors">
-                    Iniciar Conversa
-                </button>
+            <!-- TELA DE BEM-VINDO -->
+            <div id="welcomeScreen" class="absolute inset-0 bg-mono-900 z-10 flex flex-col items-center justify-center p-6 text-center">
+                <div class="border border-mono-50/30 p-8 max-w-md w-full bg-mono-800 flex flex-col items-center gap-4">
+                    <h2 class="text-2xl font-bold tracking-widest uppercase text-mono-50">BEM-VINDO AO YOSA</h2>
+                    <p class="text-xs text-mono-300 uppercase tracking-widest leading-relaxed">
+                        SISTEMA AUTÔNOMO DE RESPOSTA PROCESSAMENTAL
+                    </p>
+                    <button id="startChatBtn" class="w-full mt-4 py-3 bg-mono-50 text-mono-900 font-bold text-xs uppercase tracking-widest hover:bg-mono-200 transition-colors">
+                        INICIAR CONVERSA
+                    </button>
+                </div>
             </div>
 
-            <!-- CHAT MESSAGES DISPLAY -->
-            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
-                <!-- Dynamic chat bubbles -->
+            <!-- EXIBICAO DE MENSAGENS FRONTAL -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+                <!-- Baloes dinamicos -->
             </div>
 
-            <!-- INPUT BOX AREA -->
-            <div class="p-4 border-t border-brand-border bg-brand-black">
+            <!-- BARRA DE MENSAGEM -->
+            <div class="p-4 border-t border-mono-50/20 bg-mono-900">
                 <form id="chatForm" class="flex gap-2 items-center">
                     <input 
                         type="text" 
                         id="messageInput" 
-                        placeholder="DIGITE SUA MENSAGEM..." 
-                        class="flex-1 bg-brand-dark border border-brand-border text-brand-white px-4 py-3 text-xs tracking-wider outline-none focus:border-brand-white transition-colors uppercase"
+                        placeholder="DIGITE SUA MENSAGEM AQUI..." 
+                        class="flex-1 bg-mono-800 border border-mono-50/30 text-mono-50 px-4 py-3 text-xs tracking-wider outline-none focus:border-mono-50 transition-colors uppercase placeholder:text-mono-400"
                         autocomplete="off"
                     />
                     <button 
                         type="submit" 
-                        class="px-6 py-3 border border-brand-white bg-brand-white text-brand-black font-bold text-xs uppercase tracking-wider hover:bg-gray-200 transition-colors shrink-0"
+                        id="sendBtn"
+                        class="px-6 py-3 border border-mono-50 bg-mono-50 text-mono-900 font-bold text-xs uppercase tracking-widest hover:bg-mono-200 transition-colors shrink-0 active:translate-y-0.5"
                     >
-                        Enviar
+                        ENVIAR
                     </button>
                 </form>
             </div>
@@ -113,25 +136,31 @@
         </main>
     </div>
 
-    <!-- CONFIG / SETTINGS MODAL -->
-    <div id="configModal" class="fixed inset-0 bg-black/80 z-30 hidden items-center justify-center p-4">
-        <div class="bg-brand-dark border border-brand-border p-6 w-full max-w-md space-y-4">
-            <div class="flex justify-between items-center border-b border-brand-border pb-3">
-                <h3 class="text-xs font-bold uppercase tracking-widest">Configuração de API</h3>
-                <button id="closeConfigBtn" class="text-xs text-brand-muted hover:text-brand-white uppercase">[Fechar]</button>
+    <!-- CONFIG MODAL -->
+    <div id="configModal" class="fixed inset-0 bg-mono-900/90 backdrop-blur-sm z-40 hidden items-center justify-center p-4">
+        <div class="bg-mono-800 border border-mono-50/30 p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-mono-50/20 pb-3">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-mono-50">CONFIGURAÇÃO DE API</h3>
+                <button id="closeConfigBtn" class="text-xs text-mono-300 hover:text-mono-50 uppercase tracking-wider">[ FECHAR ]</button>
             </div>
-            <div class="space-y-2">
-                <label class="block text-xs uppercase text-brand-muted">Chave de API Pollinations (opcional sobreposição):</label>
-                <input 
-                    type="password" 
-                    id="apiKeyInput" 
-                    placeholder="sk_..." 
-                    class="w-full bg-brand-black border border-brand-border p-2 text-xs text-brand-white outline-none focus:border-brand-white"
-                />
-                <p class="text-[10px] text-brand-muted">A chave já está hardcodada no código `script.js`. Altere aqui caso precise sobrescrever dinamicamente.</p>
+            <div class="space-y-3">
+                <p class="text-[11px] text-mono-300 uppercase leading-relaxed">
+                    SUA CHAVE DE API PODE SER DEFINIDA DIRETAMENTE DENTRO DO ARQUIVO <span class="text-mono-50 font-bold">SCRIPT.JS</span> NA VARIÁVEL <span class="text-mono-50 font-bold">HARDCODED_API_KEY</span>.
+                </p>
+                <div class="space-y-1">
+                    <label class="block text-[10px] uppercase text-mono-400">CHAVE ATUAL (SOBREPOSIÇÃO MANUAL):</label>
+                    <input 
+                        type="password" 
+                        id="apiKeyInput" 
+                        placeholder="sk_..." 
+                        class="w-full bg-mono-900 border border-mono-50/30 p-3 text-xs text-mono-50 outline-none focus:border-mono-50"
+                    />
+                </div>
             </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button id="saveKeyBtn" class="px-4 py-2 border border-brand-white bg-brand-white text-brand-black text-xs font-bold uppercase">Salvar</button>
+            <div class="flex justify-end pt-2">
+                <button id="saveKeyBtn" class="px-5 py-2 border border-mono-50 bg-mono-50 text-mono-900 text-xs font-bold uppercase tracking-wider hover:bg-mono-200 transition-colors">
+                    SALVAR
+                </button>
             </div>
         </div>
     </div>
